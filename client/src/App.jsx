@@ -3,10 +3,13 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+import CitizenLayout from "./components/CitizenLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
+import MyComplaintsPage from "./pages/MyComplaintsPage";
+import NewComplaintPage from "./pages/NewComplaintPage";
 import RegisterPage from "./pages/RegisterPage";
 
 function HomeRedirect() {
@@ -32,7 +35,19 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route element={<CitizenLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+
+          <Route
+            path="/complaints/new"
+            element={<NewComplaintPage />}
+          />
+
+          <Route
+            path="/complaints"
+            element={<MyComplaintsPage />}
+          />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
