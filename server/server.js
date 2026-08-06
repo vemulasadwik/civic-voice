@@ -1,6 +1,10 @@
+const dns = require("node:dns");
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const connectDatabase = require("./src/config/db");
 
 dotenv.config();
 
@@ -13,11 +17,21 @@ app.get("/api/health", (request, response) => {
   response.status(200).json({
     success: true,
     message: "Civic Voice backend is working",
+    database:
+      require("mongoose").connection.readyState === 1
+        ? "Connected"
+        : "Disconnected",
   });
 });
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+async function startServer() {
+  await connectDatabase();
+
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+startServer();
