@@ -7,6 +7,9 @@ const generateComplaintNumber = require(
 const {
   COMPLAINT_CATEGORIES,
 } = require("../constants/complaintConstants");
+const createNotification = require("../utils/createNotification");
+const Comment = require("../models/Comment");
+const Notification = require("../models/Notification");
 
 async function createComplaint(request, response) {
   try {
@@ -159,8 +162,36 @@ async function getMyComplaintById(request, response) {
   }
 }
 
+async function reopenComplaint(request, response) {
+  const complaint = await Complaint.findOne({ _id: request.params.id, citizen: request.user._id });
+  if (!complaint) return response.status(404).json({ success: false, message: "Complaint not found" });
+  if (complaint.status !== "Resolved") return response.status(400).json({ success: false, message: "Only resolved complaints can be reopened" });
+  const note = request.body.note?.trim();
+  if (!note) return response.status(400).json({ success: false, message: "Please explain why the complaint is being reopened" });
+  complaint.status = "Reopened"; complaint.reopenedAt = new Date(); complaint.resolvedAt = null;
+  complaint.statusHistory.push({ status: "Reopened", note, updatedBy: request.user._id }); await complaint.save();
+  if (complaint.assignedOfficer) await createNotification({ recipient: complaint.assignedOfficer, complaint: complaint._id, type: "reopened", message: `${complaint.complaintNumber} was reopened by the citizen` });
+  return response.json({ success: true, message: "Complaint reopened", complaint });
+}
+
+async function deleteComplaint(request, response) {
+  const complaint = await Complaint.findOne({ _id: request.params.id, citizen: request.user._id });
+  if (!complaint) return response.status(404).json({ success: false, message: "Complaint not found" });
+  if (!["Pending", "Rejected"].includes(complaint.status)) {
+    return response.status(400).json({ success: false, message: "Only pending or rejected complaints can be deleted" });
+  }
+  await Promise.all([
+    Comment.deleteMany({ complaint: complaint._id }),
+    Notification.deleteMany({ complaint: complaint._id }),
+    complaint.deleteOne(),
+  ]);
+  return response.json({ success: true, message: "Complaint deleted successfully" });
+}
+
 module.exports = {
   createComplaint,
   getMyComplaints,
   getMyComplaintById,
+  reopenComplaint,
+  deleteComplaint,
 };

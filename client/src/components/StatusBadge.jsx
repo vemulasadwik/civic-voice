@@ -1,6 +1,5 @@
 const statusClasses = {
-  Pending:
-    "border-amber-200 bg-amber-50 text-amber-700",
+  Pending: "border-amber-200 bg-amber-50 text-amber-700",
   Assigned:
     "border-blue-200 bg-blue-50 text-blue-700",
   "In Progress":
@@ -20,8 +19,9 @@ function StatusBadge({ status }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${classes}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${classes}`}
     >
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
       {status}
     </span>
   );

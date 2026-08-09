@@ -62,12 +62,19 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function refreshUser() {
+    const response = await api.get("/auth/me");
+    setUser(response.data.user);
+    return response.data.user;
+  }
+
   const value = {
     user,
     loading,
     register,
     login,
     logout,
+    refreshUser,
     isAuthenticated: Boolean(user),
   };
 
@@ -78,6 +85,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
 

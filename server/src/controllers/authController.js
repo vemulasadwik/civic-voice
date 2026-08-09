@@ -160,8 +160,25 @@ async function getCurrentUser(request, response) {
     },
   });
 }
+async function updateProfile(request, response) {
+  const allowed = ["name", "phone", "ward"];
+  for (const field of allowed) if (request.body[field] !== undefined) request.user[field] = String(request.body[field]).trim();
+  await request.user.save();
+  return response.json({ success: true, message: "Profile updated", user: { id: request.user._id, name: request.user.name, email: request.user.email, phone: request.user.phone, ward: request.user.ward, role: request.user.role, isActive: request.user.isActive } });
+}
+
+async function changePassword(request, response) {
+  const { currentPassword, newPassword } = request.body;
+  if (!currentPassword || !newPassword || newPassword.length < 8) return response.status(400).json({ success: false, message: "Current password and a new password of at least 8 characters are required" });
+  const user = await User.findById(request.user._id).select("+password");
+  if (!(await user.comparePassword(currentPassword))) return response.status(400).json({ success: false, message: "Current password is incorrect" });
+  user.password = newPassword; await user.save();
+  return response.json({ success: true, message: "Password changed successfully" });
+}
 module.exports = {
   register,
   login,
-    getCurrentUser,
+  getCurrentUser,
+  updateProfile,
+  changePassword,
 };

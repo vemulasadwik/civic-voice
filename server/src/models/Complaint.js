@@ -156,6 +156,11 @@ const complaintSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    acceptedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

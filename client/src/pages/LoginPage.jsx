@@ -1,127 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Icon from "../components/Icon";
 
 function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-
-    setError("");
-
-    try {
-      setSubmitting(true);
-      await login(email, password);
-      navigate("/dashboard");
-    } catch (requestError) {
-      setError(
-        requestError.response?.data?.message ||
-          "Login failed. Please try again."
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div className="flex min-h-screen items-center bg-slate-100 px-4 py-10">
-      <div className="mx-auto w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link
-            to="/"
-            className="text-3xl font-bold text-blue-700"
-          >
-            Civic Voice
-          </Link>
-
-          <p className="mt-2 text-slate-600">
-            Log in to track your complaints
-          </p>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl bg-white p-6 shadow-sm sm:p-8"
-        >
-          {error && (
-            <div
-              role="alert"
-              className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-5">
-            <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                Email address
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-                placeholder="Enter your password"
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-7 w-full rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-400"
-          >
-            {submitting ? "Logging in..." : "Log in"}
-          </button>
-
-          <p className="mt-6 text-center text-sm text-slate-600">
-            Don&apos;t have an account?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-blue-700 hover:text-blue-800"
-            >
-              Register
-            </Link>
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+  const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [error,setError]=useState(""); const [submitting,setSubmitting]=useState(false);
+  const { login }=useAuth(); const navigate=useNavigate();
+  async function handleSubmit(event){event.preventDefault();setError("");try{setSubmitting(true);await login(email,password);navigate("/dashboard");}catch(requestError){setError(requestError.response?.data?.message||"Login failed. Please try again.");}finally{setSubmitting(false);}}
+  return <AuthShell>
+    <div className="text-center"><h1 className="text-2xl font-black text-slate-900">Welcome Back!</h1><p className="mt-2 text-sm text-slate-500">Login to continue</p></div>
+    <form onSubmit={handleSubmit} className="mt-8 space-y-5">{error&&<div className="flex gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700"><Icon name="alert" className="h-4 w-4 shrink-0"/>{error}</div>}<Field label="Email address" icon="mail"><input type="email" required value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Enter your email" className="w-full bg-transparent py-3 pr-3 text-sm outline-none"/></Field><Field label="Password" icon="lock"><input type="password" required value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Enter your password" className="w-full bg-transparent py-3 pr-3 text-sm outline-none"/></Field><div className="flex items-center justify-between text-xs"><label className="flex items-center gap-2 text-slate-500"><input type="checkbox" className="accent-emerald-600"/>Remember me</label><Link to="/forgot-password" className="font-semibold text-emerald-600">Forgot password?</Link></div><button disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 py-3 text-sm font-bold text-white shadow-md shadow-emerald-100 hover:bg-emerald-700 disabled:opacity-60"><Icon name="user" className="h-4 w-4"/>{submitting?"Logging in...":"Login"}</button></form>
+    <div className="my-6 flex items-center gap-3"><span className="h-px flex-1 bg-slate-200"/><span className="text-[10px] text-slate-400">Or continue with</span><span className="h-px flex-1 bg-slate-200"/></div><div className="grid grid-cols-2 gap-3"><button className="rounded-lg border border-slate-200 py-2.5 text-xs font-semibold text-slate-600">Google</button><button className="rounded-lg border border-slate-200 py-2.5 text-xs font-semibold text-slate-600">Phone</button></div><p className="mt-6 text-center text-xs text-slate-500">Don&apos;t have an account? <Link to="/register" className="font-bold text-emerald-600">Register</Link></p>
+  </AuthShell>;
 }
 
+function AuthShell({children}){return <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7faf8] px-4 py-10"><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-emerald-100/60 to-transparent"/><div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-xl shadow-slate-200/60 sm:p-10"><Link to="/" className="mb-8 flex items-center justify-center gap-2"><span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-600 text-white"><Icon name="shield"/></span><span><b className="block text-lg leading-none text-slate-900">Civic<span className="text-emerald-600">Voice</span></b><small className="text-[9px] text-slate-500">Citizen Grievance System</small></span></Link>{children}</div></main>}
+function Field({label,icon,children}){return <div><label className="mb-2 block text-xs font-semibold text-slate-600">{label}</label><div className="flex items-center rounded-lg border border-slate-200 focus-within:border-emerald-500 focus-within:ring-3 focus-within:ring-emerald-50"><Icon name={icon} className="ml-3 h-4 w-4 text-slate-400"/>{children}</div></div>}
 export default LoginPage;

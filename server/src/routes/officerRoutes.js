@@ -1,0 +1,17 @@
+const router = require("express").Router();
+const authenticate = require("../middleware/authMiddleware");
+const authorizeRoles = require("../middleware/roleMiddleware");
+const controller = require("../controllers/officerController");
+const { listComments, addComment } = require("../controllers/commentController");
+const upload = require("../middleware/uploadMiddleware");
+const { uploadComplaintImages, deleteComplaintImage } = require("../controllers/uploadController");
+router.use(authenticate, authorizeRoles("officer"));
+router.get("/complaints", controller.listAssignedComplaints);
+router.get("/complaints/:id", controller.getAssignedComplaint);
+router.patch("/complaints/:id/status", controller.updateOfficerStatus);
+router.post("/complaints/:id/progress", controller.addProgressNote);
+router.get("/complaints/:id/comments", listComments);
+router.post("/complaints/:id/comments", addComment);
+router.post("/complaints/:id/images", upload.array("images", 5), uploadComplaintImages);
+router.delete("/complaints/:id/images", deleteComplaintImage);
+module.exports = router;
