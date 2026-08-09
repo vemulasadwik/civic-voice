@@ -76,6 +76,9 @@ async function deleteComplaintImage(request, response) {
   if (request.user.role === "citizen" && !["Pending", "Rejected"].includes(complaint.status)) {
     return response.status(400).json({ success: false, message: "Evidence can only be deleted while a complaint is pending or rejected" });
   }
+  if (request.user.role === "citizen" && complaint.images.length <= 1) {
+    return response.status(400).json({ success: false, message: "A complaint must keep at least one evidence photo" });
+  }
   if (request.user.role === "officer" && complaint.status !== "In Progress") {
     return response.status(400).json({ success: false, message: "Completion photos can only be deleted while work is in progress" });
   }
