@@ -26,11 +26,13 @@ import OfficerDashboardPage from "./pages/officer/OfficerDashboardPage";
 import OfficerComplaintsPage from "./pages/officer/OfficerComplaintsPage";
 import OfficerComplaintDetailPage from "./pages/officer/OfficerComplaintDetailPage";
 import GuestRoute from "./components/GuestRoute";
+import { useAuth } from "./context/AuthContext";
+import { roleHome } from "./utils/roleHome";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<RoleAwareLanding />} />
       <Route element={<GuestRoute />}>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -76,9 +78,26 @@ function App() {
           </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<RoleAwareFallback />} />
     </Routes>
   );
+}
+
+function RoleAwareLanding() {
+  const { user, loading } = useAuth();
+  if (loading) return <FullPageLoader />;
+  if (user?.role === "admin" || user?.role === "officer") return <Navigate to={roleHome(user.role)} replace />;
+  return <LandingPage />;
+}
+
+function RoleAwareFallback() {
+  const { user, loading } = useAuth();
+  if (loading) return <FullPageLoader />;
+  return <Navigate to={user ? roleHome(user.role) : "/"} replace />;
+}
+
+function FullPageLoader() {
+  return <div className="grid min-h-screen place-items-center bg-slate-50"><div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" /></div>;
 }
 
 export default App;

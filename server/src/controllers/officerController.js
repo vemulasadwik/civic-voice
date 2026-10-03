@@ -16,14 +16,15 @@ async function getAssignedComplaint(request, response) {
 async function updateOfficerStatus(request, response) {
   const complaint = await Complaint.findOne({ _id: request.params.id, assignedOfficer: request.user._id });
   if (!complaint) return response.status(404).json({ success: false, message: "Assigned complaint not found" });
-  const allowed = { Assigned: ["In Progress"], Reopened: ["In Progress"], "In Progress": ["Resolved"] };
+  const allowed = { Assigned: ["In Progress", "Rejected"], Reopened: ["In Progress", "Rejected"], "In Progress": ["Resolved"] };
   const nextStatus = request.body.status;
   if (!allowed[complaint.status]?.includes(nextStatus)) return response.status(400).json({ success: false, message: `Cannot change ${complaint.status} to ${nextStatus}` });
   if (nextStatus === "Resolved" && complaint.completionImages.length === 0) return response.status(400).json({ success: false, message: "Upload at least one completion image before resolving the complaint" });
   complaint.status = nextStatus;
   if (nextStatus === "In Progress" && !complaint.acceptedAt) complaint.acceptedAt = new Date();
   if (nextStatus === "Resolved") complaint.resolvedAt = new Date();
-  complaint.statusHistory.push({ status: nextStatus, note: request.body.note?.trim() || (nextStatus === "In Progress" ? "Officer started working on the complaint" : "Work completed by ward officer"), updatedBy: request.user._id });
+  const defaultNotes = { "In Progress": "Officer started working on the complaint", Resolved: "Work completed by ward officer", Rejected: "Complaint rejected by ward officer" };
+  complaint.statusHistory.push({ status: nextStatus, note: request.body.note?.trim() || defaultNotes[nextStatus], updatedBy: request.user._id });
   await complaint.save();
   await createNotification({ recipient: complaint.citizen, complaint: complaint._id, type: nextStatus === "Resolved" ? "resolved" : "status_changed", message: `${complaint.complaintNumber} is now ${nextStatus}` });
   return response.json({ success: true, message: "Complaint status updated", complaint });
