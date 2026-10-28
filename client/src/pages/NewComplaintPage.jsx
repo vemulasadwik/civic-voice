@@ -83,6 +83,7 @@ function NewComplaintPage() {
 
   function useCurrentLocation() {
     if (!navigator.geolocation) return setError("Location services are not supported by this browser");
+    if (!window.isSecureContext) return setError("Device location requires a secure HTTPS connection. Open the secure Civic Voice website and try again.");
     setLocating(true); setError("");
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
@@ -100,11 +101,40 @@ function NewComplaintPage() {
         }
       },
       (locationError) => {
-        const messages = { 1: "Location permission was denied. Allow location access and try again.", 2: "Your current location could not be determined.", 3: "Location request timed out. Please try again." };
-        setError(messages[locationError.code] || "Unable to get your current location");
-        setLocating(false);
+        if (locationError.code === 1) {
+          setError("Location access is blocked. Allow location permission for this site in your phone and browser settings, then reload and try again.");
+          setLocating(false);
+          return;
+        }
+        // Mobile browsers may need more time or a network-based location fix.
+        navigator.geolocation.getCurrentPosition(
+          async ({ coords }) => {
+            const latitude = Number(coords.latitude.toFixed(6));
+            const longitude = Number(coords.longitude.toFixed(6));
+            setMapPosition([latitude, longitude]);
+            try {
+              const address = await findAddress(latitude, longitude);
+              setFormData((current) => ({ ...current, address, latitude, longitude }));
+            } catch {
+              setError("Location found, but its address could not be identified. Please enter the street or landmark manually.");
+              setFormData((current) => ({ ...current, address: "", latitude, longitude }));
+            } finally {
+              setLocating(false);
+            }
+          },
+          (fallbackError) => {
+            const messages = {
+              1: "Location access is blocked. Allow location permission for this site in your phone and browser settings, then reload and try again.",
+              2: "Your phone could not determine a location. Turn on Location Services and try again outdoors or near a window.",
+              3: "The location request timed out. Turn on Location Services and try again.",
+            };
+            setError(messages[fallbackError.code] || "Unable to get your current location. Check your phone's location settings and try again.");
+            setLocating(false);
+          },
+          { enableHighAccuracy: false, timeout: 30000, maximumAge: 120000 },
+        );
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 },
     );
   }
 
