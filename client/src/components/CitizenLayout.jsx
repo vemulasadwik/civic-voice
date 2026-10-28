@@ -51,7 +51,7 @@ function CitizenLayout() {
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10">
           <div className="flex items-center gap-3 lg:hidden"><div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-600 text-white"><Icon name="shield" className="h-5 w-5" /></div><span className="font-bold text-ink">Civic<span className="text-emerald-600">Voice</span></span></div>
           <p className="hidden text-sm text-slate-500 lg:block">Citizen Services Portal</p>
-          <div className="flex items-center gap-2"><Link to="/notifications" className="grid h-10 w-10 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100" aria-label="Notifications"><Icon name="bell" /></Link><Link to="/profile" className="grid h-9 w-9 place-items-center rounded-full bg-civic-100 text-sm font-bold text-civic-700 lg:hidden" aria-label="Open profile">{user?.name?.charAt(0)?.toUpperCase() || "C"}</Link></div>
+          <div className="flex items-center gap-1.5"><Link to="/notifications" className="grid h-10 w-10 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100" aria-label="Notifications"><Icon name="bell" /></Link><Link to="/profile" className="grid h-9 w-9 place-items-center rounded-full bg-civic-100 text-sm font-bold text-civic-700 lg:hidden" aria-label="Open profile">{user?.name?.charAt(0)?.toUpperCase() || "C"}</Link><button type="button" onClick={handleLogout} className="rounded-lg border border-slate-200 px-2.5 py-2 text-xs font-semibold text-slate-600 hover:border-red-200 hover:text-red-600 lg:hidden">Log out</button></div>
         </div>
       </header>
 
