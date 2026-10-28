@@ -5,7 +5,7 @@ import Icon from "./Icon";
 function StaffLayout({ title, subtitle, navigation }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const signOut = () => { logout(); navigate("/login"); };
+  const signOut = () => { logout(); navigate("/", { replace: true }); };
   const navClass = ({ isActive }) => `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-emerald-50/60 hover:text-emerald-700"}`;
 
   return (

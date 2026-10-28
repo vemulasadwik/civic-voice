@@ -21,7 +21,7 @@ function CitizenLayout() {
 
   function handleLogout() {
     logout();
-    navigate("/login");
+    navigate("/", { replace: true });
   }
 
   return (
